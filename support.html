@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>支持 · 钢琴节拍器</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #16181d;
+    --muted: #5f6570;
+    --line: #e6e8ec;
+    --accent: #2f6bff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e0f12;
+      --fg: #e8eaee;
+      --muted: #9aa1ad;
+      --line: #24272e;
+      --accent: #5b8cff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.75 -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1 { font-size: 28px; line-height: 1.3; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 40px; }
+  h2 { font-size: 18px; margin: 36px 0 10px; letter-spacing: -0.01em; }
+  p { margin: 0 0 14px; }
+  ul { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 8px; }
+  .lead {
+    font-size: 17px; padding: 18px 20px; border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 10px; margin: 0 0 28px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  footer { color: var(--muted); font-size: 13px; margin-top: 56px; }
+  .nav { font-size: 14px; margin: 0 0 32px; }
+</style>
+</head>
+<body>
+<main>
+
+  <h1>钢琴节拍器 · 支持</h1>
+  <p class="sub">最后更新：2026 年 11 月 3 日</p>
+
+  <p class="nav"><a href="/">隐私政策</a></p>
+
+  <p class="lead">
+    遇到问题、想提建议，或者希望增加某个功能，都可以直接反馈。这个应用由一个人维护，每一条都会看。
+  </p>
+
+  <h2>联系方式</h2>
+  <ul>
+    <li>邮箱：<a href="mailto:mpan.dev@gmail.com">mpan.dev@gmail.com</a></li>
+    <li>问题跟踪：<a href="https://github.com/xhuaustc/Metronome/issues">github.com/xhuaustc/Metronome/issues</a></li>
+  </ul>
+  <p>反馈时如果能附上机型与 iOS 版本，定位会快很多。</p>
+
+  <h2>常见问题</h2>
+
+  <h2 style="font-size:16px">锁屏后节拍声还在响，是正常的吗？</h2>
+  <p>
+    是。钢琴练习时需要看谱，屏幕通常会锁上，所以应用启用了后台音频。停止播放或切换到其它应用后即可停止。
+  </p>
+
+  <h2 style="font-size:16px">为什么来电之后节拍器停了？</h2>
+  <p>
+    这是刻意设计。音频被系统抢占时会立即停止并复位到第一拍，避免挂断电话的瞬间声音自己响起来。
+  </p>
+
+  <h2 style="font-size:16px">改速度需要先暂停吗？</h2>
+  <p>
+    不需要。播放中改速度会立刻生效，不会重复当前拍，也不会突然补一下。拍号和细分的改动会等到下一小节开始才切换，避免打断正在进行的一句。
+  </p>
+
+  <h2 style="font-size:16px">没有声音怎么办？</h2>
+  <ul>
+    <li>检查侧边静音开关：本应用的声音走媒体通道，静音开关不会影响它，但请确认音量键没有被调到最低。</li>
+    <li>确认没有连接蓝牙耳机或音箱，声音可能被送到了别的设备。</li>
+    <li>在设置里把主音量拉回中间位置再试。</li>
+  </ul>
+
+  <h2 style="font-size:16px">会收集我的练习数据吗？</h2>
+  <p>
+    不会。应用完全离线，没有账号，不联网，也不含任何统计或广告 SDK。详见<a href="/">隐私政策</a>。
+  </p>
+
+  <footer>© 2026 Xiaohua Pan</footer>
+
+</main>
+</body>
+</html>
