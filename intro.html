@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070B11">
+<meta name="format-detection" content="telephone=no">
+<title>知拍节拍器 · 打开就练，稳稳跟上每一拍</title>
+<meta name="description" content="知拍节拍器，为钢琴慢练而来。按小节自动提速，吃力时保持或退回一档；20–400 BPM、14 种拍号、四种外观与四种机械敲击音色。完全离线，无广告、无内购、不收集数据。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="知拍节拍器">
+<meta property="og:title" content="知拍节拍器 · 打开就练，稳稳跟上每一拍">
+<meta property="og:description" content="从慢练到熟练，按小节自动提速。20–400 BPM、14 种拍号、机械摆针，完全离线无广告。">
+<meta property="og:image" content="https://xhuaustc.github.io/metronome-site/assets/share.jpg">
+<meta property="og:url" content="https://xhuaustc.github.io/metronome-site/intro.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="知拍节拍器 · 打开就练，稳稳跟上每一拍">
+<meta name="twitter:description" content="从慢练到熟练，按小节自动提速。完全离线，无广告、无内购。">
+<meta name="twitter:image" content="https://xhuaustc.github.io/metronome-site/assets/share.jpg">
+<link rel="apple-touch-icon" href="assets/share.jpg">
+<style>
+  :root {
+    --bg: #070b11;
+    --bg-2: #0d1520;
+    --panel: rgba(255, 255, 255, .035);
+    --panel-strong: rgba(255, 255, 255, .055);
+    --line: rgba(255, 255, 255, .10);
+    --line-soft: rgba(255, 255, 255, .06);
+    --text: #eaf1f8;
+    --muted: #92a6bb;
+    --dim: #6b8098;
+    --blue: #58b2ff;
+    --blue-bright: #7cc6ff;
+    --blue-deep: #2b7bd4;
+    --gold: #dcc19a;
+    --radius: 22px;
+    --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.78;
+    letter-spacing: .01em;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(900px 620px at 78% 4%, rgba(46, 122, 205, .20), transparent 68%),
+      radial-gradient(760px 620px at 8% 34%, rgba(30, 88, 150, .13), transparent 70%),
+      linear-gradient(180deg, #080d15 0%, #070b11 42%, #0a111b 100%);
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: .5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9), transparent 85%);
+    mask-image: linear-gradient(180deg, rgba(0,0,0,.9), transparent 85%);
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  h1, h2, h3, p { margin: 0; }
+  ::selection { background: rgba(88, 178, 255, .3); }
+
+  .wrap { width: calc(100% - 40px); max-width: 1120px; margin: 0 auto; }
+  .section { padding: 84px 0; position: relative; }
+  .section + .section { border-top: 1px solid var(--line-soft); }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    color: var(--blue); font-size: 12px; font-weight: 600;
+    letter-spacing: .22em; text-transform: uppercase;
+  }
+  .eyebrow::before { content: ""; width: 22px; height: 1px; background: var(--blue); }
+  h2 {
+    font-size: clamp(28px, 5.2vw, 46px);
+    line-height: 1.28; letter-spacing: -.025em; font-weight: 700;
+    margin: 18px 0 20px;
+  }
+  h2 em { font-style: normal; color: var(--blue); }
+  h3 { font-size: 18px; line-height: 1.45; letter-spacing: -.01em; font-weight: 650; }
+  .lead { color: var(--muted); font-size: 16px; max-width: 660px; }
+  .lead strong { color: var(--text); font-weight: 600; }
+  .small { font-size: 13px; color: var(--dim); line-height: 1.7; }
+  .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+  /* 顶部进度与导航 */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0;
+    background: linear-gradient(90deg, var(--blue-deep), var(--blue-bright));
+    z-index: 60; box-shadow: 0 0 12px rgba(88,178,255,.6);
+  }
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(8, 13, 21, .78);
+    border-bottom: 1px solid var(--line-soft);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px; gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; font-weight: 650; font-size: 15px; letter-spacing: .02em; }
+  .brand-mark {
+    width: 26px; height: 30px; flex: 0 0 auto;
+    background: linear-gradient(105deg, #f2f7fc, #9fb2c6 45%, #e8f1fa 70%, #8397ac);
+    -webkit-clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+    clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+    position: relative; border-radius: 3px;
+  }
+  .brand-mark::after {
+    content: ""; position: absolute; left: 49%; bottom: 6%; width: 2px; height: 76%;
+    background: var(--blue); transform: rotate(13deg); transform-origin: bottom center;
+    box-shadow: 0 0 6px rgba(88,178,255,.8);
+  }
+  .brand span { color: var(--dim); font-weight: 400; font-size: 12px; letter-spacing: .14em; margin-left: 2px; }
+  .nav-links { display: flex; align-items: center; gap: 24px; font-size: 13px; color: var(--muted); }
+  .nav-links a:hover { color: var(--blue); }
+
+  /* 微信分享封面：供爬虫抓取，不参与布局 */
+  .wx-cover {
+    position: absolute; top: 0; left: 0; width: 300px; height: 300px;
+    opacity: .01; pointer-events: none; z-index: -1;
+  }
+
+  /* 首屏 */
+  .hero { padding: 74px 0 92px; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: 1fr; gap: 54px; align-items: center; }
+  .hero-kicker {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 12px; letter-spacing: .16em; color: var(--gold);
+    border: 1px solid rgba(220,193,154,.28); border-radius: 999px;
+    padding: 7px 15px; background: rgba(220,193,154,.05);
+  }
+  .hero-kicker i { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); font-style: normal; }
+  .hero h1 {
+    font-size: clamp(40px, 9.4vw, 72px);
+    line-height: 1.18; letter-spacing: -.045em; font-weight: 750;
+    margin: 26px 0 22px;
+  }
+  .hero h1 .accent {
+    display: block;
+    background: linear-gradient(96deg, #8fd0ff 0%, #4aa8ff 48%, #6ab8ff 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: var(--blue);
+  }
+  .hero-lede { font-size: 17px; color: var(--muted); max-width: 520px; line-height: 1.85; }
+  .hero-lede b { color: var(--text); font-weight: 600; }
+  .tags { display: flex; flex-wrap: wrap; gap: 9px; margin: 26px 0 32px; }
+  .tag {
+    font-size: 12.5px; color: #c4d6e8; padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.035);
+  }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    min-height: 50px; padding: 0 24px; border-radius: 14px; border: 1px solid transparent;
+    font-size: 15px; font-weight: 600; letter-spacing: .01em;
+    transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #66bcff, #2f88e8);
+    color: #04121f; box-shadow: 0 12px 34px rgba(47, 136, 232, .30);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 42px rgba(47,136,232,.42); }
+  .btn-ghost { border-color: var(--line); color: var(--text); background: rgba(255,255,255,.03); }
+  .btn-ghost:hover { border-color: rgba(88,178,255,.5); color: var(--blue-bright); }
+  .btn-arrow { font-size: 17px; line-height: 1; }
+  .hero-note { margin-top: 18px; font-size: 12.5px; color: var(--dim); }
+
+  .hero-visual { position: relative; display: flex; justify-content: center; }
+  .halo {
+    position: absolute; width: 460px; height: 460px; max-width: 110%; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(56,140,230,.26) 0%, rgba(36,96,170,.10) 42%, transparent 70%);
+    filter: blur(8px); pointer-events: none;
+    animation: breathe 7s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%,100% { opacity: .65; transform: translate(-50%,-50%) scale(.94); } 50% { opacity: 1; transform: translate(-50%,-50%) scale(1.06); } }
+  .phone {
+    position: relative; width: 100%; max-width: 292px; border-radius: 38px; overflow: hidden;
+    border: 1px solid rgba(210,230,255,.22);
+    box-shadow: 0 34px 90px rgba(0,0,0,.62), 0 0 0 7px rgba(18,28,40,.85), 0 0 60px rgba(70,150,240,.14);
+    animation: float 8s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .float-card {
+    position: absolute; z-index: 2; padding: 11px 15px; border-radius: 13px;
+    background: rgba(17, 28, 42, .88); border: 1px solid rgba(120,180,240,.26);
+    box-shadow: 0 14px 34px rgba(0,0,0,.4);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    font-size: 12px; color: #cfe2f5; white-space: nowrap;
+    animation: float 6s ease-in-out infinite;
+  }
+  .float-card b { display: block; color: #fff; font-size: 16px; font-weight: 650; letter-spacing: .02em; }
+  .float-card small { color: var(--blue); font-size: 11px; }
+  .fc-a { top: 15%; left: -4%; animation-delay: -2s; }
+  .fc-b { bottom: 17%; right: -5%; animation-delay: -4s; }
+  .beats { display: flex; justify-content: center; gap: 9px; margin-top: 26px; }
+  .beats i {
+    width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.18);
+    animation: beat 1.6s ease-in-out infinite;
+  }
+  .beats i:nth-child(2) { animation-delay: .4s; }
+  .beats i:nth-child(3) { animation-delay: .8s; }
+  .beats i:nth-child(4) { animation-delay: 1.2s; }
+  @keyframes beat {
+    0%, 100% { background: rgba(255,255,255,.18); transform: scale(1); box-shadow: none; }
+    12% { background: var(--blue); transform: scale(1.5); box-shadow: 0 0 14px rgba(88,178,255,.9); }
+  }
+
+  /* 数据条 */
+  .stats {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--line-soft); border: 1px solid var(--line-soft);
+    border-radius: var(--radius); overflow: hidden; margin-top: 8px;
+  }
+  .stat { background: #0b121c; padding: 26px 20px; text-align: center; }
+  .stat b {
+    display: block; font-size: clamp(24px, 4.6vw, 36px); font-weight: 700;
+    letter-spacing: -.03em; line-height: 1.25;
+    background: linear-gradient(180deg, #ffffff, #a9c6e2);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat span { display: block; font-size: 12.5px; color: var(--dim); margin-top: 6px; }
+
+  /* 通用卡片 */
+  .cards { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 38px; }
+  .card {
+    padding: 26px 24px; border-radius: var(--radius);
+    background: var(--panel); border: 1px solid var(--line);
+    transition: transform .3s ease, border-color .3s ease, background .3s ease;
+  }
+  .card:hover { transform: translateY(-3px); border-color: rgba(88,178,255,.32); background: var(--panel-strong); }
+  .card-idx { font-size: 12px; color: var(--blue); letter-spacing: .18em; font-weight: 600; }
+  .card h3 { margin: 12px 0 10px; }
+  .card p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+  .quote {
+    margin-top: 34px; padding: 22px 24px; border-left: 2px solid var(--blue);
+    background: linear-gradient(90deg, rgba(88,178,255,.08), transparent);
+    border-radius: 0 14px 14px 0; color: #d5e5f5; font-size: 16px;
+  }
+
+  /* 图文双栏 */
+  .split { display: grid; grid-template-columns: 1fr; gap: 44px; align-items: center; }
+  .feature-list { margin: 26px 0 0; padding: 0; list-style: none; }
+  .feature-list li {
+    position: relative; padding-left: 24px; margin-bottom: 13px;
+    color: var(--muted); font-size: 14.5px; line-height: 1.75;
+  }
+  .feature-list li::before {
+    content: ""; position: absolute; left: 2px; top: 11px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--blue); box-shadow: 0 0 10px rgba(88,178,255,.7);
+  }
+  .feature-list b { color: var(--text); font-weight: 600; }
+  .shot {
+    border-radius: 30px; overflow: hidden; border: 1px solid rgba(210,230,255,.18);
+    box-shadow: 0 26px 70px rgba(0,0,0,.55); background: #05080d;
+  }
+  .shot img { width: 100%; height: auto; }
+  .shot-wrap { position: relative; max-width: 340px; margin: 0 auto; }
+  .shot-wrap .shot + .shot { margin-top: 16px; }
+  .shot-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 460px; margin: 0 auto; }
+  .shot-duo .shot { border-radius: 20px; }
+
+  /* 提速时间轴 */
+  .ramp {
+    margin-top: 30px; padding: 24px 22px; border-radius: var(--radius);
+    border: 1px solid var(--line); background: rgba(10,18,28,.7);
+  }
+  .ramp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .ramp-head b { font-size: 14px; font-weight: 600; }
+  .ramp-head span { font-size: 12px; color: var(--dim); }
+  .ramp-track {
+    position: relative; display: grid; grid-template-columns: repeat(10, 1fr);
+    gap: 5px; margin-top: 18px;
+  }
+  .ramp-track i {
+    height: 30px; border-radius: 5px; background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.05);
+    animation: rampGlow 6s linear infinite;
+  }
+  .ramp-track i:nth-child(1) { animation-delay: 0s; }
+  .ramp-track i:nth-child(2) { animation-delay: .6s; }
+  .ramp-track i:nth-child(3) { animation-delay: 1.2s; }
+  .ramp-track i:nth-child(4) { animation-delay: 1.8s; }
+  .ramp-track i:nth-child(5) { animation-delay: 2.4s; }
+  .ramp-track i:nth-child(6) { animation-delay: 3.0s; }
+  .ramp-track i:nth-child(7) { animation-delay: 3.6s; }
+  .ramp-track i:nth-child(8) { animation-delay: 4.2s; }
+  .ramp-track i:nth-child(9) { animation-delay: 4.8s; }
+  .ramp-track i:nth-child(10) { animation-delay: 5.4s; }
+  @keyframes rampGlow {
+    0%, 8% { background: var(--blue); box-shadow: 0 0 16px rgba(88,178,255,.45); }
+    16%, 100% { background: rgba(88,178,255,.16); box-shadow: none; }
+  }
+  .ramp-labels { display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--dim); }
+  .ramp-labels b { color: var(--text); font-weight: 600; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
+  .pill {
+    font-size: 12.5px; color: #cfe0f0; padding: 7px 13px; border-radius: 9px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.03);
+  }
+  .pill b { color: var(--blue); font-weight: 600; }
+
+  /* 拍号 chips */
+  .meters { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 28px; }
+  .meter-chip {
+    min-width: 62px; text-align: center; padding: 9px 12px; font-size: 14px;
+    border-radius: 11px; border: 1px solid var(--line);
+    background: rgba(255,255,255,.035); color: #c9dcee;
+    font-variant-numeric: tabular-nums;
+  }
+  .meter-chip.hot {
+    background: linear-gradient(135deg, #67bdff, #368fe9); color: #04121f;
+    border-color: transparent; font-weight: 650; box-shadow: 0 8px 24px rgba(54,143,233,.28);
+  }
+
+  /* 外观 / 声音切换 */
+  .tabs { display: flex; gap: 8px; margin: 0 0 20px; flex-wrap: wrap; }
+  .tab {
+    padding: 9px 18px; border-radius: 999px; font-size: 13px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.03); color: var(--muted);
+    transition: all .25s ease;
+  }
+  .tab.active { background: rgba(88,178,255,.16); border-color: rgba(88,178,255,.5); color: #dcefff; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .combo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 26px; }
+  .combo {
+    padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line);
+    background: rgba(255,255,255,.03); font-size: 13.5px; color: #cbdced;
+  }
+  .combo b { display: block; color: var(--text); font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .combo span { color: var(--dim); font-size: 12px; }
+
+  /* 摆针示意 */
+  .pendulum-demo {
+    position: relative; width: 170px; height: 210px; margin: 0 auto 8px;
+  }
+  .pendulum-body {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 18%),
+      linear-gradient(100deg, #7e91a6 0%, #f2f8ff 18%, #b3c4d6 40%, #f7fbff 62%, #8699ae 84%, #cfdceb 100%);
+    -webkit-clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%);
+    clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%);
+    border-radius: 7px 7px 4px 4px;
+    box-shadow: 0 16px 34px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  /* 深色面板：与页面底色区分，带内阴影与高光 */
+  .pendulum-face {
+    position: absolute; left: 0; right: 0; top: 4%; bottom: 3%;
+    -webkit-clip-path: polygon(34% 0, 66% 0, 94% 100%, 6% 100%);
+    clip-path: polygon(34% 0, 66% 0, 94% 100%, 6% 100%);
+    background:
+      radial-gradient(130% 76% at 50% -6%, rgba(138,184,230,.42), rgba(138,184,230,0) 64%),
+      linear-gradient(180deg, #263545 0%, #1c2836 50%, #22303f 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(190,214,238,.45),
+      inset 0 8px 20px rgba(0,0,0,.42),
+      inset 0 -6px 14px rgba(0,0,0,.28);
+    overflow: hidden;
+  }
+  /* 顶部高光条 */
+  .pendulum-face::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 14%;
+    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0));
+  }
+  /* BPM 刻度与数字 */
+  .pendulum-face i {
+    position: absolute; right: 16%; font-style: normal;
+    font-size: 7.5px; letter-spacing: .02em; line-height: 1;
+    color: rgba(208,227,245,.8); font-variant-numeric: tabular-nums;
+  }
+  .pendulum-face i::before {
+    content: ""; position: absolute; right: calc(100% + 5px); top: 50%;
+    width: 9px; height: 1px; background: rgba(186,211,236,.6);
+  }
+  .pendulum-face i::after {
+    content: ""; position: absolute; right: calc(100% + 15px); top: 50%;
+    width: 4px; height: 1px; background: rgba(186,211,236,.3);
+  }
+  .pendulum-face i:nth-child(1) { top: 46%; }
+  .pendulum-face i:nth-child(2) { top: 66%; }
+  .pendulum-face i:nth-child(3) { top: 86%; }
+  .pendulum-face i:nth-child(4) { display: none; }
+  .pendulum-rod {
+    position: absolute; left: 50%; bottom: 13px; width: 3px; height: 168px;
+    margin-left: -1.5px; border-radius: 2px;
+    background: linear-gradient(180deg, #9ad8ff, #4aa5f2 70%, #3d9cf0);
+    transform-origin: bottom center;
+    animation: swing 1.6s cubic-bezier(.45,.05,.55,.95) infinite alternate;
+    box-shadow: 0 0 10px rgba(88,178,255,.7);
+    z-index: 2;
+  }
+  .pendulum-weight {
+    position: absolute; left: 50%; top: 46px; width: 36px; height: 18px;
+    margin-left: -18px; border-radius: 4px;
+    background: linear-gradient(180deg, #7fcbff, #2f86e4);
+    border: 1px solid rgba(200,232,255,.85);
+    box-shadow: 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .pendulum-rod .pendulum-weight { position: absolute; }
+  @keyframes swing { from { transform: rotate(-18deg); } to { transform: rotate(18deg); } }
+  .pendulum-pivot {
+    position: absolute; left: 50%; bottom: 6px; width: 14px; height: 14px;
+    margin-left: -7px; border-radius: 50%; background: #e4eefa;
+    border: 2px solid #4d5f73; z-index: 3;
+    box-shadow: 0 1px 4px rgba(0,0,0,.5), inset 0 -1px 2px rgba(0,0,0,.25);
+  }
+  .detail-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 38px; }
+  .detail {
+    padding: 24px; border-radius: 18px; border: 1px solid var(--line);
+    background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+  }
+  .detail h3 { font-size: 16px; margin-bottom: 8px; }
+  .detail p { color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+  .detail .ico { font-size: 12px; color: var(--blue); letter-spacing: .16em; margin-bottom: 12px; }
+
+  /* 安心区块：银白反差 */
+  .trust {
+    background: linear-gradient(165deg, #eef3f8 0%, #dde6ef 52%, #cfdbe7 100%);
+    color: #0e1a26; border-radius: 30px; padding: 52px 26px;
+    position: relative; overflow: hidden;
+  }
+  .trust::before {
+    content: ""; position: absolute; width: 420px; height: 420px; right: -120px; top: -160px;
+    background: radial-gradient(circle, rgba(70,145,225,.22), transparent 68%);
+  }
+  .trust .eyebrow { color: #2b6fb8; }
+  .trust .eyebrow::before { background: #2b6fb8; }
+  .trust h2 { color: #0c1824; margin-top: 16px; }
+  .trust h2 em { color: #1f6fc4; }
+  .trust .lead { color: #43566b; }
+  .trust .lead strong { color: #0c1824; }
+  .zero-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 32px; }
+  .zero {
+    padding: 20px; border-radius: 16px; background: rgba(255,255,255,.62);
+    border: 1px solid rgba(20,45,75,.10);
+  }
+  .zero b { display: block; font-size: 30px; line-height: 1.2; color: #1f6fc4; letter-spacing: -.03em; }
+  .zero span { font-size: 12.5px; color: #4c6074; }
+  .trust-links { margin-top: 28px; font-size: 13px; color: #4c6074; }
+  .trust-links a { color: #1f6fc4; text-decoration: underline; text-underline-offset: 3px; }
+
+  /* 适用 / FAQ */
+  .audience { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .audience span {
+    padding: 11px 18px; border-radius: 12px; font-size: 14px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.03); color: #cfe0f0;
+  }
+  .faq { margin-top: 30px; border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); padding: 0 2px; }
+  .faq summary {
+    list-style: none; cursor: pointer; padding: 20px 30px 20px 0; position: relative;
+    font-size: 15.5px; font-weight: 600; color: var(--text);
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "+"; position: absolute; right: 4px; top: 17px;
+    color: var(--blue); font-size: 20px; font-weight: 400;
+    transition: transform .25s ease;
+  }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { padding: 0 26px 22px 0; color: var(--muted); font-size: 14px; line-height: 1.85; }
+
+  /* 结尾 */
+  .final { text-align: center; padding: 96px 0 80px; }
+  .final h2 { font-size: clamp(30px, 6vw, 52px); margin-bottom: 18px; }
+  .final .lead { margin: 0 auto 30px; text-align: center; }
+  .final .cta-row { justify-content: center; }
+  .share-card {
+    margin: 62px auto 0; max-width: 380px;
+    border-radius: 24px; overflow: hidden; border: 1px solid var(--line);
+    box-shadow: 0 24px 70px rgba(0,0,0,.5);
+  }
+  .share-card img { width: 100%; }
+  .share-tip { margin-top: 14px; font-size: 13px; color: var(--dim); }
+
+  footer { border-top: 1px solid var(--line-soft); padding: 34px 0 calc(38px + env(safe-area-inset-bottom)); }
+  .footer-inner { display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: center; justify-content: space-between; font-size: 13px; color: var(--dim); }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 20px; }
+  .footer-links a:hover { color: var(--blue); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(30px + env(safe-area-inset-bottom));
+    transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    background: rgba(20,32,46,.95); color: #e8f3ff; font-size: 13px;
+    padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(120,180,240,.3);
+    box-shadow: 0 16px 40px rgba(0,0,0,.5); z-index: 80;
+    transition: opacity .3s ease, transform .3s ease; max-width: 86%; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* 滚动渐入：仅在支持 JS 时启用 */
+  html.js .reveal { opacity: 0; transform: translateY(22px); transition: opacity .75s cubic-bezier(.2,.7,.2,1), transform .75s cubic-bezier(.2,.7,.2,1); }
+  html.js .reveal.in { opacity: 1; transform: none; }
+
+  @media (min-width: 720px) {
+    .section { padding: 108px 0; }
+    .hero { padding: 96px 0 116px; }
+    .hero-grid { grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: start; }
+    .hero-copy { padding-top: 30px; }
+    .phone { max-width: 268px; }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .cards { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .split { grid-template-columns: 1fr 1fr; gap: 64px; }
+    .split.reverse .split-copy { order: 2; }
+    .combo-grid { grid-template-columns: repeat(4, 1fr); }
+    .detail-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .zero-grid { grid-template-columns: repeat(4, 1fr); }
+    .trust { padding: 68px 54px; }
+    .float-card { font-size: 13px; }
+  }
+  @media (max-width: 420px) {
+    .fc-a { left: -2%; }
+    .fc-b { right: -2%; }
+    .float-card { padding: 9px 12px; font-size: 11px; }
+    .float-card b { font-size: 14px; }
+    .brand span { display: none; }
+    .nav-links { gap: 16px; }
+  }
+  @media print {
+    html.js .reveal { opacity: 1 !important; transform: none !important; }
+    .nav, .progress, .toast { display: none !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    html.js .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- 供微信等抓取分享缩略图；页面底部另有可见的同款卡片 -->
+<img class="wx-cover" src="assets/share.jpg" alt="知拍节拍器 · 打开就练，稳稳跟上每一拍" width="900" height="900">
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <i class="brand-mark" aria-hidden="true"></i>
+      知拍节拍器 <span>ZHIPAI METRONOME</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#practice">核心功能</a>
+      <a href="#trust">安心</a>
+      <a href="#faq">常见问题</a>
+      <a href="support.html">支持</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- 首屏 -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy reveal">
+        <div class="hero-kicker"><i></i> 为钢琴慢练而来 · iPhone 免费</div>
+        <h1>打开就练<span class="accent">稳稳跟上每一拍</span></h1>
+        <p class="hero-lede">
+          从 <b class="num">60</b> 到 <b class="num">96</b>，不必停下双手。按小节自动提速，吃力时保持或退回一档——
+          <b>让节拍替你记住进度，你只管专注手上的练习。</b>
+        </p>
+        <div class="tags">
+          <span class="tag">按小节渐进提速</span>
+          <span class="tag">14 种拍号</span>
+          <span class="tag">机械摆针</span>
+          <span class="tag">完全离线</span>
+        </div>
+        <div class="cta-row">
+          <a class="btn btn-primary" id="cta-top" href="#download">App Store 即将上线 <span class="btn-arrow">→</span></a>
+          <a class="btn btn-ghost" href="#practice">了解全部功能</a>
+        </div>
+        <p class="hero-note">仅 iPhone · iOS 16.0 及以上 · 竖屏使用 · 无广告、无内购</p>
+      </div>
+
+      <div class="hero-visual reveal">
+        <div class="halo" aria-hidden="true"></div>
+        <div class="float-card fc-a" aria-hidden="true"><small>渐进提速练习</small><b class="num">60 → 96 BPM</b>每 8 小节 +4</div>
+        <div class="float-card fc-b" aria-hidden="true"><small>机械摆针</small><b>左右各 18°</b>随音频时钟摆动</div>
+        <div class="phone">
+          <img src="assets/01-home.jpg" alt="知拍节拍器首页：96 BPM、银白机械机身、拍号与细分设置、开始按钮" width="540" height="1173" fetchpriority="high">
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="beats" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="stats reveal">
+        <div class="stat"><b class="num">20–400</b><span>BPM 速度范围</span></div>
+        <div class="stat"><b class="num">14 种</b><span>拍号与计拍方式</span></div>
+        <div class="stat"><b class="num">4 × 4</b><span>外观与音色自由搭配</span></div>
+        <div class="stat"><b class="num">0</b><span>广告 · 内购 · 数据上传</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 理念 -->
+  <section class="section">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="eyebrow">Why · 为什么是知拍</div>
+        <h2>慢练最难的不是慢，<br>是<em>接着往前</em></h2>
+        <p class="lead">练琴时，节拍器应该待在背景里。它不该让你分心去按按钮，也不该用一串电子滴答声盖过琴声。</p>
+      </div>
+      <div class="cards">
+        <div class="card reveal">
+          <div class="card-idx">01</div>
+          <h3>每次调速，都是一次打断</h3>
+          <p>手刚进入状态，却要停下来把 60 调成 64。反复几次，注意力就从乐句转到了屏幕上。</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-idx">02</div>
+          <h3>电子滴答，听着不像节拍器</h3>
+          <p>生硬的方波提示音容易和琴声打架。机械摆锤那种带瞬态、快速衰减的敲击，才更容易被身体接住。</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-idx">03</div>
+          <h3>设置越多，越不想开始</h3>
+          <p>常用参数收在一屏里，打开就是上次的状态。收藏一键切换，低频设置统一收进齿轮。</p>
+        </div>
+      </div>
+      <div class="quote reveal">知拍把调速交给节拍本身，把界面收回到一屏，把声音还原成机械摆锤的敲击。</div>
+    </div>
+  </section>
+
+  <!-- 渐进提速 -->
+  <section class="section" id="practice">
+    <div class="wrap split">
+      <div class="split-copy reveal">
+        <div class="eyebrow">01 · 核心功能</div>
+        <h2>让速度<em>自己往前走</em></h2>
+        <p class="lead">
+          设定起始速度、目标速度、每次增量和间隔小节数，节拍器在<strong>完整小节边界</strong>自动提速。
+          预备拍不计入，到达目标后保持播放，不打断你。
+        </p>
+        <ul class="feature-list">
+          <li><b>默认方案：60 → 96 BPM</b>，每 8 小节增加 4 BPM；四项参数都可自定义。</li>
+          <li><b>保持 / 继续 / 退回一档</b>：遇到难点随时停在舒适的速度，准备好再往前。</li>
+          <li><b>由音频采样时钟推进</b>，不依赖界面刷新；手动控制在后续尚未排入的完整小节生效。</li>
+          <li>停止或系统中断后从起始速度重练，方案保留，不会自动出声。</li>
+        </ul>
+        <div class="ramp">
+          <div class="ramp-head">
+            <b>一档一档，稳稳提速</b>
+            <span class="num">每 8 小节 +4 BPM</span>
+          </div>
+          <div class="ramp-track" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="ramp-labels"><span>起始 <b class="num">60</b></span><span>逐档递进 · 末档精确落到目标</span><span>目标 <b class="num">96</b></span></div>
+        </div>
+        <div class="pill-row">
+          <span class="pill"><b>预备拍</b> 不计入训练</span>
+          <span class="pill"><b>小节边界</b> 生效</span>
+          <span class="pill"><b>已排音频</b> 不改写</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="shot-duo">
+          <div class="shot"><img src="assets/02-practice.jpg" alt="渐进提速练习进行中：当前 60 BPM、第 1/8 小节、目标 96，提供退一档与保持按钮" width="540" height="1173"></div>
+          <div class="shot"><img src="assets/03-practice-settings.jpg" alt="渐进提速练习配置页：起始速度、目标速度、增量与间隔小节数" width="540" height="1173"></div>
+        </div>
+        <p class="small" style="text-align:center;margin-top:14px">左：训练进行中　右：方案配置</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 拍号与节奏 -->
+  <section class="section" id="meter">
+    <div class="wrap split reverse">
+      <div class="split-copy reveal">
+        <div class="eyebrow">02 · 节奏自由</div>
+        <h2>你需要的节奏，<em>随手可调</em></h2>
+        <p class="lead">
+          从常用的 4/4 到 12/8、5/4、7/8，14 种拍号一次给齐。速度范围 20–400 BPM，
+          页面始终标明<strong>当前按哪个音符计拍</strong>，不含糊。
+        </p>
+        <div class="meters" aria-label="支持的 14 种拍号">
+          <span class="meter-chip hot">4/4</span>
+          <span class="meter-chip">2/4</span><span class="meter-chip">3/4</span>
+          <span class="meter-chip">3/8</span><span class="meter-chip">6/8</span>
+          <span class="meter-chip">9/8</span><span class="meter-chip">12/8</span>
+          <span class="meter-chip">2/2</span><span class="meter-chip">3/2</span>
+          <span class="meter-chip">6/4</span><span class="meter-chip">5/4</span>
+          <span class="meter-chip">7/4</span><span class="meter-chip">5/8</span>
+          <span class="meter-chip">7/8</span>
+        </div>
+        <ul class="feature-list">
+          <li><b>复拍子按大拍或小拍计速</b>：6/8、9/8、12/8 按附点音符大拍；切换时换算 BPM，尽量保持小节时长。</li>
+          <li><b>不规则拍子重音分组</b>：5 拍支持 2+3、3+2；7 拍支持 2+2+3、3+2+2、2+3+2。</li>
+          <li><b>二、三、四等分细分</b>与重音提示，配合一小节预备拍，给双手留好准备时间。</li>
+        </ul>
+      </div>
+      <div class="shot-wrap reveal">
+        <div class="shot"><img src="assets/04-meters.jpg" alt="拍号与计拍面板：常用与单拍子、复拍子、不规则拍子以及按大拍/按小拍计速" width="540" height="1173"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 外观与声音 -->
+  <section class="section" id="sound">
+    <div class="wrap split">
+      <div class="split-copy reveal">
+        <div class="eyebrow">03 · 看得顺眼，听得顺耳</div>
+        <h2>四种外观，<em>四种声音</em></h2>
+        <p class="lead">
+          外观和音色是<strong>两个独立设置</strong>，各自保存在本机。主页左右滑动循环切换机身，
+          设置页逐项试听声音——换外观不会改变声音，反之亦然。
+        </p>
+        <div class="combo-grid">
+          <div class="combo"><b>银白 · 图标同款</b><span>银白机身 · 冰蓝摆杆</span></div>
+          <div class="combo"><b>胡桃木</b><span>温润木纹 · 黄铜盘面</span></div>
+          <div class="combo"><b>象牙白</b><span>奶油烤漆 · 复古金属</span></div>
+          <div class="combo"><b>曜石黑</b><span>石墨磨砂 · 琥珀摆杆</span></div>
+        </div>
+        <div class="pill-row">
+          <span class="pill">清脆机械敲击</span><span class="pill">木壳机械敲击</span>
+          <span class="pill">柔和机械敲击</span><span class="pill">紧致机械敲击</span>
+        </div>
+        <p class="small" style="margin-top:16px">
+          声音由撞击瞬态、快速衰减的机身共振与带限接触噪声合成，不是电子滴答。停止播放时可单独试听，不触发预备拍、不移动播放头。
+        </p>
+      </div>
+      <div class="shot-wrap reveal">
+        <div class="tabs" role="tablist" aria-label="界面预览切换">
+          <button class="tab active" data-tab="look" role="tab" aria-selected="true">外观选择</button>
+          <button class="tab" data-tab="voice" role="tab" aria-selected="false">声音与播放</button>
+        </div>
+        <div class="tab-panel active" id="look">
+          <div class="shot"><img src="assets/05-appearance.jpg" alt="设置页外观选择：银白、胡桃木、象牙白、曜石黑四种机身，下方是独立的声音区域" width="540" height="1173"></div>
+        </div>
+        <div class="tab-panel" id="voice">
+          <div class="shot"><img src="assets/06-sounds.jpg" alt="设置页声音、音量与播放选项：四种机械音色可试听，重音、预备拍、屏幕常亮开关" width="540" height="1173"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 收藏与细节 -->
+  <section class="section" id="details">
+    <div class="wrap split reverse">
+      <div class="split-copy reveal">
+        <div class="eyebrow">04 · 少一点打断</div>
+        <h2>常练的节奏，<em>一键找回</em></h2>
+        <p class="lead">
+          最多收藏 5 组常用设置：BPM、拍号、计拍方式、重音分组、细分与重音一起保存。
+          换曲目时点一下就切换，长按还能「用当前设置覆盖」，保留原位置。
+        </p>
+        <ul class="feature-list">
+          <li>外观、声音、音量、预备拍和常亮偏好<b>不随收藏改变</b>，练习状态保持连续。</li>
+          <li>首页固定一屏、不上下滚动，机身按剩余高度缩放，放在谱架上也能看清大字号速度。</li>
+          <li>支持屏幕常亮、锁屏与后台播放；来电或系统音频中断时停止，由你手动重新开始。</li>
+        </ul>
+      </div>
+      <div class="shot-wrap reveal">
+        <div class="shot"><img src="assets/07-favorites.jpg" alt="常用节拍收藏：展开收藏夹后的记录列表与覆盖更新提示" width="540" height="1173"></div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="detail-grid">
+        <div class="detail reveal">
+          <div class="ico">PENDULUM</div>
+          <div class="pendulum-demo" aria-hidden="true">
+            <div class="pendulum-body">
+              <div class="pendulum-face"><i>20</i><i>60</i><i>100</i><i>200</i></div>
+            </div>
+            <div class="pendulum-rod"><span class="pendulum-weight"></span></div>
+            <div class="pendulum-pivot"></div>
+          </div>
+          <h3>机械摆针</h3>
+          <p>左右各 18°，按音频采样时钟摆动，每个主拍抵达交替端点。细分不会增加摆动次数，切换拍号不重置方向。</p>
+        </div>
+        <div class="detail reveal">
+          <div class="ico">CLOCK</div>
+          <h3>音乐时钟，不是界面动画</h3>
+          <p>训练与小节推进都由已排入的音频快照驱动，界面只负责显示实际听到的位置，不提前宣称下一档已生效。</p>
+        </div>
+        <div class="detail reveal">
+          <div class="ico">LOCAL</div>
+          <h3>设置只留在本机</h3>
+          <p>速度、收藏、外观、声音与练习方案自动保存，下次打开接着用。没有账号，没有同步，删除应用即随之清除。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 安心 -->
+  <section class="section" id="trust">
+    <div class="wrap">
+      <div class="trust reveal">
+        <div class="eyebrow">Simple &amp; Private</div>
+        <h2>简单，<em>安心</em></h2>
+        <p class="lead">
+          <strong>没有账号，没有网络请求，没有第三方 SDK。</strong>
+          应用完全离线运行，不收集任何个人数据，也不申请麦克风权限。年纪小的孩子也能独自使用。
+        </p>
+        <div class="zero-grid">
+          <div class="zero"><b>0</b><span>广告</span></div>
+          <div class="zero"><b>0</b><span>内购与订阅</span></div>
+          <div class="zero"><b>0</b><span>账号与注册</span></div>
+          <div class="zero"><b>0</b><span>数据上传</span></div>
+        </div>
+        <p class="trust-links">
+          想逐条核对？请看<a href="index.html">隐私政策</a>与<a href="support.html">技术支持</a>。
+          设置仅保存在本机系统偏好中，删除应用即清除。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 适用 -->
+  <section class="section">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="eyebrow">For whom</div>
+        <h2>稳住节拍，<br><em>把注意力留给音乐</em></h2>
+        <p class="lead">为钢琴慢练打造，也适合其他乐器与日常节奏训练。</p>
+      </div>
+      <div class="audience reveal">
+        <span>钢琴慢练与考级</span>
+        <span>困难乐句逐档提速</span>
+        <span>视奏与合奏前对齐速度</span>
+        <span>吉他 · 小提琴 · 声乐</span>
+        <span>谱架上的稳定节拍参照</span>
+        <span>不想被广告打扰的练习</span>
+      </div>
+      <p class="small reveal" style="margin-top:20px">当前版本仅支持 iPhone（iOS 16.0 及以上），竖屏使用；完全离线，不需要联网或登录。</p>
+    </div>
+  </section>
+
+  <!-- 常见问题 -->
+  <section class="section" id="faq">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="eyebrow">FAQ</div>
+        <h2>你可能想先知道</h2>
+      </div>
+      <div class="faq reveal">
+        <details>
+          <summary>锁屏之后节拍声还在响，是正常的吗？</summary>
+          <p>是。练琴时要看谱、屏幕通常会锁上，所以应用启用了后台音频。它会继续按原来的间隔播放，直到你停止播放或结束练习。来电等系统音频中断时则会立即停止并复位到第一拍，之后由你手动重新开始，避免挂断瞬间声音自己响起来。</p>
+        </details>
+        <details>
+          <summary>播放中能改速度、拍号或细分吗？</summary>
+          <p>普通模式下可以直接调速，拍号与细分的改动会等到下一小节开始才切换，避免打断正在进行的一句。渐进提速训练中会锁定节奏参数，但外观、声音和音量仍可随时调整；保持、继续、退回一档则在后续尚未排入音频队列的完整小节生效。</p>
+        </details>
+        <details>
+          <summary>6/8、9/8 这类复拍子，BPM 到底按什么算？</summary>
+          <p>按页面标明的音符计拍：可以选择按附点音符的「大拍」，或按谱面分母的「小拍」。切换计拍单位时会换算 BPM，尽量保持小节时长不变；整数取整或超出 20–400 范围时速度可能略有变化。2/2、3/2 按二分音符计拍。</p>
+        </details>
+        <details>
+          <summary>渐进提速练习会保存上次的进度吗？</summary>
+          <p>只保存方案，不保存运行进度。停止或系统中断后再次开始，都从起始速度重新练起；保持、继续或退档这类一次运行中的状态也不会写进偏好。这样每次练习的起点都确定，不会因为上次意外退出而错位。</p>
+        </details>
+        <details>
+          <summary>需要联网、注册或付费吗？</summary>
+          <p>都不需要。应用完全离线，无账号、无广告、无内购，也不含任何统计或广告 SDK。设置自动保存在本机，不收集个人数据，不申请麦克风权限。</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 结尾 -->
+  <section class="final" id="download">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="eyebrow" style="justify-content:center">Start today</div>
+        <h2>把节拍练稳，<br><em>从今天的一次慢练开始</em></h2>
+        <p class="lead">打开应用，调好速度，一键开始。剩下的，交给节拍。</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" id="cta-main" href="#share">App Store 审核中 · 即将上线 <span class="btn-arrow">→</span></a>
+          <a class="btn btn-ghost" href="support.html">问题与建议</a>
+        </div>
+        <p class="hero-note">应用正在 App Store 审核，上架后此按钮将更新为下载链接。</p>
+      </div>
+
+      <div class="reveal" id="share">
+        <div class="share-card">
+          <img src="assets/share.jpg" alt="知拍节拍器分享卡片：打开就练，稳稳跟上每一拍" width="900" height="900">
+        </div>
+        <p class="share-tip">长按保存这张卡片，或直接把页面分享给正在练琴的朋友</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>© 2026 Xiaohua Pan · 知拍节拍器</div>
+    <div class="footer-links">
+      <a href="index.html">隐私政策</a>
+      <a href="support.html">技术支持</a>
+      <a href="https://github.com/xhuaustc/Metronome">项目源码</a>
+      <a href="#top">回到顶部 ↑</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  document.documentElement.classList.add('js');
+  (function () {
+    // 上架后把 App Store 链接填进这里，两个按钮会自动切换为可下载状态
+    var APP_STORE_URL = '';
+
+    var toast = document.getElementById('toast');
+    var toastTimer;
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2800);
+    }
+
+    var ctas = [document.getElementById('cta-top'), document.getElementById('cta-main')];
+    if (APP_STORE_URL) {
+      ctas.forEach(function (a) {
+        if (!a) return;
+        a.href = APP_STORE_URL;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.innerHTML = '前往 App Store 下载 <span class="btn-arrow">→</span>';
+      });
+    } else {
+      ctas.forEach(function (a) {
+        if (!a) return;
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          showToast('应用正在 App Store 审核，上架后这里会替换为下载链接');
+        });
+      });
+    }
+
+    // 滚动渐入
+    var reveals = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      reveals.forEach(function (el, i) {
+        el.style.transitionDelay = (i % 3) * 70 + 'ms';
+        io.observe(el);
+      });
+    } else {
+      reveals.forEach(function (el) { el.classList.add('in'); });
+    }
+
+    // 兜底：个别内置浏览器下观察器可能延迟或不回调，
+    // 用滚动位置补一次判断，保证内容不会停留在隐藏状态。
+    var pending = Array.prototype.slice.call(reveals);
+    function revealVisible() {
+      if (!pending.length) return;
+      var limit = window.innerHeight * 1.08;
+      pending = pending.filter(function (el) {
+        if (el.getBoundingClientRect().top < limit) {
+          el.classList.add('in');
+          return false;
+        }
+        return true;
+      });
+    }
+    window.addEventListener('scroll', revealVisible, { passive: true });
+    window.addEventListener('resize', revealVisible);
+    revealVisible();
+
+    // 顶部滚动进度
+    var progress = document.getElementById('progress');
+    var ticking = false;
+    function updateProgress() {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var p = h > 0 ? (window.pageYOffset / h) * 100 : 0;
+      progress.style.width = Math.min(100, Math.max(0, p)) + '%';
+      ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { window.requestAnimationFrame(updateProgress); ticking = true; }
+    }, { passive: true });
+    updateProgress();
+
+    // 外观 / 声音界面切换
+    var tabs = document.querySelectorAll('.tab');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var key = tab.getAttribute('data-tab');
+        tabs.forEach(function (t) {
+          var active = t === tab;
+          t.classList.toggle('active', active);
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        document.querySelectorAll('.tab-panel').forEach(function (p) {
+          p.classList.toggle('active', p.id === key);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
